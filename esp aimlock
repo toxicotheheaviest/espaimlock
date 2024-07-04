@@ -1,0 +1,59 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Function to create a BillboardGui
+local function createBillboardGui(character, username)
+    local existingBillboard = character:FindFirstChildOfClass("BillboardGui")
+    if existingBillboard then
+        existingBillboard:Destroy()
+    end
+
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Adornee = character:FindFirstChild("Head")
+    billboardGui.Size = UDim2.new(0, 200, 0, 50)
+    billboardGui.StudsOffset = Vector3.new(0, 2, 0)
+    billboardGui.AlwaysOnTop = true
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    textLabel.TextStrokeTransparency = 0
+    textLabel.Text = username
+    textLabel.Parent = billboardGui
+
+    billboardGui.Parent = character:FindFirstChild("Head")
+end
+
+-- Function to update the player names
+local function updatePlayerNames(player)
+    local character = player.Character
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            createBillboardGui(character, player.Name)
+        end
+    end
+end
+
+-- Function to handle player joining
+local function onPlayerAdded(player)
+    player.CharacterAdded:Connect(function(character)
+        -- Wait for the character to load
+        character:WaitForChild("Humanoid")
+        -- Initial update
+        updatePlayerNames(player)
+    end)
+end
+
+-- Connect the PlayerAdded event
+Players.PlayerAdded:Connect(onPlayerAdded)
+
+-- Initial setup for players already in the game
+for _, player in ipairs(Players:GetPlayers()) do
+    onPlayerAdded(player)
+    updatePlayerNames(player)
+end
+
+-- Send a message to the script user
+LocalPlayer:Kick("You have been banned from this experience")
